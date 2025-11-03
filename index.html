@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Returno - Find Missing People</title>
+    <link rel="icon" type="image/x-icon" href="th.webp">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-purple: #8B5CF6;
+            --dark-purple: #6D28D9;
+            --light-purple: #C4B5FD;
+            --lighter-purple: #EDE9FE;
+            --white: #FFFFFF;
+            --light-gray: #F3F4F6;
+            --text-dark: #1F2937;
+            --text-gray: #6B7280;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--white);
+        }
+
+        /* Language Toggle */
+        .lang-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--primary-purple);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .lang-toggle:hover {
+            background: var(--dark-purple);
+        }
+
+        /* Navigation */
+        nav {
+            background: var(--primary-purple);
+            padding: 1rem 5%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--white);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            cursor: pointer;
+        }
+
+        .nav-links a:hover {
+            color: var(--lighter-purple);
+        }
+
+        /* Page System */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--primary-purple), var(--dark-purple));
+            color: var(--white);
+            padding: 6rem 5%;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--white);
+            color: var(--primary-purple);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--white);
+            border: 2px solid var(--white);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        /* Content Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 4rem 5%;
+        }
+
+        /* About Section */
+        .about-section {
+            background: var(--light-gray);
+            padding: 4rem 5%;
+        }
+
+        .about-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .about-content h2 {
+            color: var(--primary-purple);
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .about-content p {
+            font-size: 1.2rem;
+            color: var(--text-gray);
+            line-height: 1.8;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Success Stories */
+        .stories-section {
+            padding: 4rem 5%;
+            background: var(--white);
+        }
+
+        .section-title {
+            text-align: center;
+            color: var(--primary-purple);
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .story-card {
+            background: var(--lighter-purple);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.2);
+            transition: transform 0.3s;
+        }
+
+        .story-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .story-card h3 {
+            color: var(--dark-purple);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .story-card p {
+            color: var(--text-gray);
+            line-height: 1.7;
+        }
+
+        .story-card .duration {
+            display: inline-block;
+            background: var(--primary-purple);
+            color: white;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+
+        /* Form Styles */
+        .form-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--white);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(139, 92, 246, 0.15);
+        }
+
+        .form-section {
+            margin-bottom: 3rem;
+        }
+
+        .form-section h3 {
+            color: var(--primary-purple);
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid var(--light-purple);
+            padding-bottom: 0.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            color: var(--text-dark);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            padding: 0.8rem;
+            border: 2px solid var(--light-purple);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-purple);
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .file-upload {
+            border: 2px dashed var(--light-purple);
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .file-upload:hover {
+            background: var(--lighter-purple);
+        }
+
+        .file-upload input {
+            display: none;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1.2rem;
+            background: var(--primary-purple);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 2rem;
+        }
+
+        .submit-btn:hover {
+            background: var(--dark-purple);
+        }
+
+        /* Search Page */
+        .search-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .search-box {
+            background: var(--lighter-purple);
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 3rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1.2rem;
+            border: 2px solid var(--primary-purple);
+            border-radius: 30px;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .search-filters {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        .filter-btn {
+            padding: 0.7rem 1.5rem;
+            background: var(--white);
+            border: 2px solid var(--primary-purple);
+            color: var(--primary-purple);
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            background: var(--primary-purple);
+            color: white;
+        }
+
+        /* Prevention Page */
+        .prevention-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .prevention-card {
+            background: var(--lighter-purple);
+            padding: 2rem;
+            border-radius: 15px;
+            border-left: 5px solid var(--primary-purple);
+        }
+
+        .prevention-card h3 {
+            color: var(--dark-purple);
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+
+        .prevention-card ul {
+            list-style-position: inside;
+            color: var(--text-gray);
+        }
+
+        .prevention-card li {
+            margin-bottom: 0.7rem;
+            line-height: 1.6;
+        }
+
+        /* Contact Page */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .contact-card {
+            background: var(--lighter-purple);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .contact-card h3 {
+            color: var(--dark-purple);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .contact-card p {
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            color: var(--primary-purple);
+            font-size: 1.1rem;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .social-links a:hover {
+            color: var(--dark-purple);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark-purple);
+            color: var(--white);
+            padding: 3rem 5%;
+            text-align: center;
+        }
+
+        footer p {
+            margin-bottom: 1rem;
+        }
+
+        /* Chatbot */
+        .chatbot-toggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: var(--primary-purple);
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(139, 92, 246, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+            transition: transform 0.3s;
+            z-index: 1000;
+        }
+
+        .chatbot-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .chatbot-window {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .chatbot-window.active {
+            display: flex;
+        }
+
+        .chatbot-header {
+            background: var(--primary-purple);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 20px 20px 0 0;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            background: var(--light-gray);
+        }
+
+        .chat-message {
+            background: var(--lighter-purple);
+            padding: 1rem;
+            border-radius: 15px;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        .chatbot-input {
+            display: flex;
+            padding: 1rem;
+            border-top: 2px solid var(--light-purple);
+        }
+
+        .chatbot-input input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 2px solid var(--light-purple);
+            border-radius: 20px;
+            margin-right: 0.5rem;
+        }
+
+        .chatbot-input button {
+            background: var(--primary-purple);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Arabic RTL Support */
+        .rtl {
+            direction: rtl;
+        }
+
+        .rtl .lang-toggle {
+            right: auto;
+            left: 20px;
+        }
+
+        .rtl .chatbot-toggle {
+            right: auto;
+            left: 30px;
+        }
+
+        .rtl .chatbot-window {
+            right: auto;
+            left: 30px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .form-container {
+                padding: 1.5rem;
+            }
+
+            .chatbot-window {
+                width: 90%;
+                right: 5%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Language Toggle -->
+    <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo" data-en="Returno" data-ar="ريترنو">Returno</div>
+            <ul class="nav-links">
+                <li><a onclick="showPage('home')" data-en="Home" data-ar="الرئيسية">Home</a></li>
+                <li><a onclick="showPage('report')" data-en="Report Missing" data-ar="الإبلاغ عن مفقود">Report Missing</a></li>
+                <li><a onclick="showPage('search')" data-en="Search" data-ar="البحث">Search</a></li>
+                <li><a onclick="showPage('prevention')" data-en="Prevention" data-ar="الوقاية">Prevention</a></li>
+                <li><a onclick="showPage('stories')" data-en="Success Stories" data-ar="قصص نجاح">Success Stories</a></li>
+                <li><a onclick="showPage('contact')" data-en="Contact" data-ar="اتصل بنا">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Home Page -->
+    <div id="home" class="page active">
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1 data-en="Bringing Families Back Together" data-ar="نعيد العائلات معاً">Bringing Families Back Together</h1>
+            <p data-en="Using advanced AI technology to match faces and voices, helping reunite missing persons with their loved ones." data-ar="باستخدام تقنية الذكاء الاصطناعي المتقدمة لمطابقة الوجوه والأصوات، نساعد في لم شمل المفقودين مع أحبائهم.">Using advanced AI technology to match faces and voices, helping reunite missing persons with their loved ones.</p>
+            <div class="cta-buttons">
+                <button class="btn btn-primary" onclick="showPage('report')" data-en="Report Missing Person" data-ar="الإبلاغ عن شخص مفقود">Report Missing Person</button>
+                <button class="btn btn-secondary" onclick="showPage('search')" data-en="Search Now" data-ar="ابحث الآن">Search Now</button>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section class="about-section">
+            <div class="about-content">
+                <h2 data-en="About Returno" data-ar="عن ريترنو">About Returno</h2>
+                <p data-en="Returno is a revolutionary platform dedicated to reuniting missing persons with their families. We leverage cutting-edge artificial intelligence to analyze facial features and voice patterns, creating a comprehensive database that helps identify and locate missing individuals. Our mission is to bring hope to families and ensure no one stays lost forever." data-ar="ريترنو هي منصة ثورية مكرسة لإعادة الأشخاص المفقودين إلى عائلاتهم. نحن نستخدم الذكاء الاصطناعي المتطور لتحليل ملامح الوجه وأنماط الصوت، مما يخلق قاعدة بيانات شاملة تساعد في تحديد موقع المفقودين. مهمتنا هي إعادة الأمل للعائلات والتأكد من عدم بقاء أي شخص مفقوداً إلى الأبد.">Returno is a revolutionary platform dedicated to reuniting missing persons with their families. We leverage cutting-edge artificial intelligence to analyze facial features and voice patterns, creating a comprehensive database that helps identify and locate missing individuals. Our mission is to bring hope to families and ensure no one stays lost forever.</p>
+            </div>
+        </section>
+
+        <!-- Success Stories Preview -->
+        <section class="stories-section">
+            <h2 class="section-title" data-en="Recent Success Stories" data-ar="قصص نجاح حديثة">Recent Success Stories</h2>
+            <div class="stories-grid">
+                <div class="story-card">
+                    <h3 data-en="Ahmed's Return" data-ar="عودة أحمد">Ahmed's Return</h3>
+                    <p data-en="7-year-old Ahmed was found 200km away from home after being missing for 3 days. Our AI matched his photo from a public camera with his family's report." data-ar="تم العثور على أحمد البالغ من العمر 7 سنوات على بعد 200 كيلومتر من المنزل بعد غيابه لمدة 3 أيام. قام نظام الذكاء الاصطناعي لدينا بمطابقة صورته من كاميرا عامة مع تقرير عائلته.">7-year-old Ahmed was found 200km away from home after being missing for 3 days. Our AI matched his photo from a public camera with his family's report.</p>
+                    <span class="duration" data-en="Found in 3 days" data-ar="تم العثور عليه في 3 أيام">Found in 3 days</span>
+                </div>
+                <div class="story-card">
+                    <h3 data-en="Fatima's Reunion" data-ar="لم شمل فاطمة">Fatima's Reunion</h3>
+                    <p data-en="65-year-old Fatima with memory issues was identified through voice recognition at a shelter. She was reunited with her family after 2 weeks." data-ar="تم التعرف على فاطمة البالغة من العمر 65 عاماً والتي تعاني من مشاكل في الذاكرة من خلال التعرف على الصوت في مأوى. تم لم شملها مع عائلتها بعد أسبوعين.">65-year-old Fatima with memory issues was identified through voice recognition at a shelter. She was reunited with her family after 2 weeks.</p>
+                    <span class="duration" data-en="Found in 14 days" data-ar="تم العثور عليها في 14 يوماً">Found in 14 days</span>
+                </div>
+                <div class="story-card">
+                    <h3 data-en="Omar's Journey Home" data-ar="رحلة عمر إلى المنزل">Omar's Journey Home</h3>
+                    <p data-en="12-year-old Omar was located in another city after 5 days. Facial recognition matched him with a report filed by his guardian within hours of being spotted." data-ar="تم تحديد موقع عمر البالغ من العمر 12 عاماً في مدينة أخرى بعد 5 أيام. طابقه التعرف على الوجه مع تقرير قدمه وليه في غضون ساعات من رؤيته.">12-year-old Omar was located in another city after 5 days. Facial recognition matched him with a report filed by his guardian within hours of being spotted.</p>
+                    <span class="duration" data-en="Found in 5 days" data-ar="تم العثور عليه في 5 أيام">Found in 5 days</span>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Report Page -->
+    <div id="report" class="page">
+        <div class="container">
+            <h1 class="section-title" data-en="Report Missing Person" data-ar="الإبلاغ عن شخص مفقود">Report Missing Person</h1>
+            <div class="form-container">
+                <form>
+                    <!-- Guardian Information -->
+                    <div class="form-section">
+                        <h3 data-en="Guardian Information" data-ar="معلومات ولي الأمر">Guardian Information</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label data-en="Full Name" data-ar="الاسم الكامل">Full Name</label>
+                                <input type="text" required>
+                            </div>
+                            <div class="form-group">
+                                <label data-en="Age" data-ar="العمر">Age</label>
+                                <input type="number" required>
+                            </div>
+                            <div class="form-group">
+                                <label data-en="National ID Number" data-ar="رقم الهوية الوطنية">National ID Number</label>
+                                <input type="text" required>
+                            </div>
+                            <div class="form-group">
+                                <label data-en="Phone Number" data-ar="رقم الهاتف">Phone Number</label>
+                                <input type="tel" required>
+                            </div>
+                            <div class="form-group">
+                                <label data-en="Relationship to Missing Person" data-ar="العلاقة بالمفقود">Relationship to Missing Person</label>
+                                <select required>
+                                    <option value="">Select...</option>
+                                    <option data-en="Parent" data-ar="والد">Parent</option>
+                                    <option data-en="Sibling" data-ar="أخ/أخت">Sibling</option>
+                                    <option data-en="Spouse" data-ar="زوج/زوجة">Spouse</option>
+                                    <option data-en="Child" data-ar="ابن/ابنة">Child</option>
+                                    <option data-en="Relative" data-ar="قريب">Relative</option>
+                                    <option data-en="Guardian" data-ar="وصي">Guardian</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Missing Person Information -->
+                    <div class="form-section">
+                        <h3 data-en="Missing Person Information" data-ar="معلومات الشخص المفقود">Missing Person Information</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label data-en="Full Name" data-ar="الاسم الكامل">Full Name</label>
+                                <input type="text" required>
+                            </div>
+                            <div class="form-group">
+                                <label data-en="Age" data-ar="العمر">Age</label>
+                                <input type="number" required>
+                            </div>
+                            <div class="form-group">
+                                <label data-en="National ID Number" data-ar="رقم الهوية الوطنية">National ID Number</label>
+                                <input type="text" required>
+                            </div>
+                            <div class="form-group">
+                                <label data-en="Last Seen Location" data-ar="آخر مكان شوهد فيه">Last Seen Location</label>
+                                <input type="text" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label data-en="Physical Appearance Description" data-ar="وصف المظهر الجسدي">Physical Appearance Description</label>
+                            <textarea required placeholder="Height, weight, hair color, eye color, distinctive features, clothing last seen wearing..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Photo Upload -->
+                    <div class="form-section">
+                        <h3 data-en="Upload Photos" data-ar="تحميل الصور">Upload Photos</h3>
+                        <div class="file-upload" onclick="document.getElementById('photos').click()">
+                            <p data-en="Click to upload multiple photos (Clear, recent photos recommended)" data-ar="انقر لتحميل صور متعددة (يفضل صور واضحة وحديثة)">Click to upload multiple photos (Clear, recent photos recommended)</p>
+                            <input type="file" id="photos" multiple accept="image/*">
+                        </div>
+                    </div>
+
+                    <!-- Audio Upload -->
+                    <div class="form-section">
+                        <h3 data-en="Upload Audio Samples" data-ar="تحميل عينات صوتية">Upload Audio Samples</h3>
+                        <div class="file-upload" onclick="document.getElementById('audio').click()">
+                            <p data-en="Click to upload audio files (Voice recordings of the missing person)" data-ar="انقر لتحميل ملفات صوتية (تسجيلات صوتية للشخص المفقود)">Click to upload audio files (Voice recordings of the missing person)</p>
+                            <input type="file" id="audio" multiple accept="audio/*">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn" data-en="Submit Report" data-ar="إرسال البلاغ">Submit Report</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Page -->
+    <div id="search" class="page">
+        <div class="container">
+            <h1 class="section-title" data-en="Search for Missing Persons" data-ar="البحث عن الأشخاص المفقودين">Search for Missing Persons</h1>
+            <div class="search-container">
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="Search by name, case number, or description...">
+                    <div class="search-filters">
+                        <button class="filter-btn" data-en="Search by Name" data-ar="البحث بالاسم">Search by Name</button>
+                        <button class="filter-btn" data-en="Search by Case Number" data-ar="البحث برقم الحالة">Search by Case Number</button>
+                        <button class="filter-btn" data-en="Filter by Age" data-ar="التصفية حسب العمر">Filter by Age</button>
+                        <button class="filter-btn" data-en="Filter by Date" data-ar="التصفية حسب التاريخ">Filter by Date</button>
+                        <button class="filter-btn" data-en="Filter by Location" data-ar="التصفية حسب الموقع">Filter by Location</button>
+                    </div>
+                </div>
+
+                <!-- Upload Search Options -->
+                <div class="form-section">
+                    <h3 data-en="Search by Photo" data-ar="البحث بالصورة">Search by Photo</h3>
+                    <div class="file-upload" onclick="document.getElementById('search-photo').click()">
+                        <p data-en="Upload a photo to search our database" data-ar="قم بتحميل صورة للبحث في قاعدة البيانات">Upload a photo to search our database</p>
+                        <input type="file" id="search-photo" accept="image/*">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 data-en="Search by Voice" data-ar="البحث بالصوت">Search by Voice</h3>
+                    <div class="file-upload" onclick="document.getElementById('search-audio').click()">
+                        <p data-en="Upload an audio file to search by voice" data-ar="قم بتحميل ملف صوتي للبحث بالصوت">Upload an audio file to search by voice</p>
+                        <input type="file" id="search-audio" accept="audio/*">
+                    </div>
+                </div>
+
+                <button class="submit-btn" data-en="Search Database" data-ar="البحث في قاعدة البيانات">Search Database</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prevention Page -->
+    <div id="prevention" class="page">
+        <div class="container">
+            <h1 class="section-title" data-en="How to Prevent Your Child from Going Missing" data-ar="كيفية حماية طفلك من الضياع">How to Prevent Your Child from Going Missing</h1>
+            
+            <div class="prevention-grid">
+                <div class="prevention-card">
+                    <h3 data-en="Teach Safety Basics" data-ar="علّم أساسيات السلامة">Teach Safety Basics</h3>
+                    <ul>
+                        <li data-en="Teach your child their full name, address, and phone number" data-ar="علّم طفلك اسمه الكامل وعنوانه ورقم هاتفه">Teach your child their full name, address, and phone number</li>
+                        <li data-en="Establish a safe word that only family members know" data-ar="حدد كلمة سر يعرفها أفراد الأسرة فقط">Establish a safe word that only family members know</li>
+                        <li data-en="Teach them never to go anywhere with strangers" data-ar="علّمهم ألا يذهبوا أبداً مع الغرباء">Teach them never to go anywhere with strangers</li>
+                        <li data-en="Practice 'what if' scenarios regularly" data-ar="مارس سيناريوهات 'ماذا لو' بانتظام">Practice 'what if' scenarios regularly</li>
+                    </ul>
+                </div>
+
+                <div class="prevention-card">
+                    <h3 data-en="Supervision and Monitoring" data-ar="الإشراف والمراقبة">Supervision and Monitoring</h3>
+                    <ul>
+                        <li data-en="Always supervise young children in public places" data-ar="أشرف دائماً على الأطفال الصغار في الأماكن العامة">Always supervise young children in public places</li>
+                        <li data-en="Know where your child is at all times" data-ar="اعرف مكان طفلك في جميع الأوقات">Know where your child is at all times</li>
+                        <li data-en="Establish check-in times when they're out" data-ar="حدد أوقات اتصال عندما يكونون بالخارج">Establish check-in times when they're out</li>
+                        <li data-en="Know your child's friends and their parents" data-ar="تعرف على أصدقاء طفلك وأولياء أمورهم">Know your child's friends and their parents</li>
+                    </ul>
+                </div>
+
+                <div class="prevention-card">
+                    <h3 data-en="Documentation" data-ar="التوثيق">Documentation</h3>
+                    <ul>
+                        <li data-en="Keep recent, clear photos of your child updated regularly" data-ar="احتفظ بصور واضحة وحديثة لطفلك محدثة بانتظام">Keep recent, clear photos of your child updated regularly</li>
+                        <li data-en="Record voice samples for identification purposes" data-ar="سجل عينات صوتية لأغراض التعريف">Record voice samples for identification purposes</li>
+                        <li data-en="Maintain a file with physical descriptions and medical info" data-ar="احتفظ بملف يحتوي على أوصاف جسدية ومعلومات طبية">Maintain a file with physical descriptions and medical info</li>
+                        <li data-en="Keep copies of important documents safe" data-ar="احتفظ بنسخ من المستندات المهمة في مكان آمن">Keep copies of important documents safe</li>
+                    </ul>
+                </div>
+
+                <div class="prevention-card">
+                    <h3 data-en="Public Places Safety" data-ar="السلامة في الأماكن العامة">Public Places Safety</h3>
+                    <ul>
+                        <li data-en="Dress children in bright, noticeable clothing in crowds" data-ar="ألبس الأطفال ملابس زاهية وملحوظة في الأماكن المزدحمة">Dress children in bright, noticeable clothing in crowds</li>
+                        <li data-en="Designate a meeting spot if you get separated" data-ar="حدد نقطة التقاء في حالة الانفصال">Designate a meeting spot if you get separated</li>
+                        <li data-en="Take a photo of your child before entering crowded areas" data-ar="التقط صورة لطفلك قبل دخول الأماكن المزدحمة">Take a photo of your child before entering crowded areas</li>
+                        <li data-en="Teach children to look for police or security if lost" data-ar="علّم الأطفال البحث عن الشرطة أو الأمن إذا ضاعوا">Teach children to look for police or security if lost</li>
+                    </ul>
+                </div>
+
+                <div class="prevention-card">
+                    <h3 data-en="Online Safety" data-ar="السلامة على الإنترنت">Online Safety</h3>
+                    <ul>
+                        <li data-en="Monitor your child's online activities" data-ar="راقب أنشطة طفلك على الإنترنت">Monitor your child's online activities</li>
+                        <li data-en="Teach them never to share personal information online" data-ar="علّمهم عدم مشاركة المعلومات الشخصية على الإنترنت">Teach them never to share personal information online</li>
+                        <li data-en="Know who they're communicating with online" data-ar="اعرف مع من يتواصلون على الإنترنت">Know who they're communicating with online</li>
+                        <li data-en="Set parental controls on devices" data-ar="قم بتعيين ضوابط الرقابة الأبوية على الأجهزة">Set parental controls on devices</li>
+                    </ul>
+                </div>
+
+                <div class="prevention-card">
+                    <h3 data-en="Build Trust" data-ar="بناء الثقة">Build Trust</h3>
+                    <ul>
+                        <li data-en="Create an environment where children feel safe sharing concerns" data-ar="أنشئ بيئة يشعر فيها الأطفال بالأمان لمشاركة مخاوفهم">Create an environment where children feel safe sharing concerns</li>
+                        <li data-en="Listen to your child's feelings and experiences" data-ar="استمع لمشاعر طفلك وتجاربه">Listen to your child's feelings and experiences</li>
+                        <li data-en="Encourage them to tell you if someone makes them uncomfortable" data-ar="شجعهم على إخبارك إذا جعلهم شخص ما يشعرون بعدم الارتياح">Encourage them to tell you if someone makes them uncomfortable</li>
+                        <li data-en="Never dismiss their concerns as unimportant" data-ar="لا تتجاهل مخاوفهم باعتبارها غير مهمة">Never dismiss their concerns as unimportant</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Stories Page -->
+    <div id="stories" class="page">
+        <div class="container">
+            <h1 class="section-title" data-en="Success Stories - Hope Restored" data-ar="قصص النجاح - استعادة الأمل">Success Stories - Hope Restored</h1>
+            
+            <div class="stories-grid">
+                <div class="story-card">
+                    <h3 data-en="Ahmed's Return" data-ar="عودة أحمد">Ahmed's Return</h3>
+                    <p data-en="7-year-old Ahmed was separated from his family during a busy market visit in Cairo. His parents immediately filed a report on Returno, uploading recent photos. Three days later, our AI system matched Ahmed's face with footage from a bus station camera 200km away. Local authorities were notified, and Ahmed was safely returned to his overjoyed family. The voice verification feature confirmed his identity within minutes." data-ar="انفصل أحمد البالغ من العمر 7 سنوات عن عائلته أثناء زيارة سوق مزدحم في القاهرة. قدم والداه بلاغاً فوراً على ريترنو، وقاموا بتحميل صور حديثة. بعد ثلاثة أيام، طابق نظام الذكاء الاصطناعي لدينا وجه أحمد مع لقطات من كاميرا محطة حافلات على بعد 200 كيلومتر. تم إخطار السلطات المحلية، وأعيد أحمد بأمان إلى عائلته المبتهجة. أكدت ميزة التحقق من الصوت هويته في غضون دقائق.">7-year-old Ahmed was separated from his family during a busy market visit in Cairo. His parents immediately filed a report on Returno, uploading recent photos. Three days later, our AI system matched Ahmed's face with footage from a bus station camera 200km away. Local authorities were notified, and Ahmed was safely returned to his overjoyed family.</p>
+                    <span class="duration" data-en="Found in 3 days" data-ar="تم العثور عليه في 3 أيام">Found in 3 days</span>
+                </div>
+
+                <div class="story-card">
+                    <h3 data-en="Fatima's Reunion" data-ar="لم شمل فاطمة">Fatima's Reunion</h3>
+                    <p data-en="65-year-old Fatima, who lives with memory challenges, wandered away from her home in Alexandria. Her family was devastated and immediately contacted Returno. After 14 days of searching, a shelter worker uploaded an audio recording to our system. Our voice recognition AI matched it with the audio samples provided by Fatima's daughter. The emotional reunion brought tears of joy to everyone involved. This case highlighted the importance of voice recognition in identifying individuals who may not remember their own names." data-ar="فاطمة البالغة من العمر 65 عاماً، والتي تعاني من تحديات في الذاكرة، ابتعدت عن منزلها في الإسكندرية. كانت عائلتها محطمة واتصلت بريترنو على الفور. بعد 14 يوماً من البحث، قام أحد العاملين في المأوى بتحميل تسجيل صوتي على نظامنا. طابق نظام التعرف على الصوت بالذكاء الاصطناعي مع العينات الصوتية التي قدمتها ابنة فاطمة. أدى لم الشمل العاطفي إلى دموع الفرح لكل المعنيين.">65-year-old Fatima, who lives with memory challenges, wandered away from her home in Alexandria. Her family was devastated and immediately contacted Returno. After 14 days, a shelter worker uploaded an audio recording to our system. Our voice recognition AI matched it with samples provided by Fatima's daughter.</p>
+                    <span class="duration" data-en="Found in 14 days" data-ar="تم العثور عليها في 14 يوماً">Found in 14 days</span>
+                </div>
+
+                <div class="story-card">
+                    <h3 data-en="Omar's Journey Home" data-ar="رحلة عمر إلى المنزل">Omar's Journey Home</h3>
+                    <p data-en="12-year-old Omar got lost while on a school trip in Luxor. His guardian filed a report with multiple photos and his voice from video recordings. Five days later, Omar was spotted by a Good Samaritan who used our mobile app to scan faces in the area. Within two hours of the match, Omar was reunited with his family. This case demonstrated the power of community involvement combined with AI technology." data-ar="ضاع عمر البالغ من العمر 12 عاماً أثناء رحلة مدرسية في الأقصر. قدم وليه بلاغاً مع صور متعددة وصوته من تسجيلات الفيديو. بعد خمسة أيام، رآه شخص طيب استخدم تطبيق الهاتف المحمول الخاص بنا لمسح الوجوه في المنطقة. في غضون ساعتين من المطابقة، تم لم شمل عمر مع عائلته.">12-year-old Omar got lost while on a school trip in Luxor. His guardian filed a report with multiple photos and voice recordings. Five days later, Omar was spotted by a Good Samaritan who used our app to scan faces in the area. Within two hours of the match, Omar was reunited with his family.</p>
+                    <span class="duration" data-en="Found in 5 days" data-ar="تم العثور عليه في 5 أيام">Found in 5 days</span>
+                </div>
+
+                <div class="story-card">
+                    <h3 data-en="Mariam's Safe Return" data-ar="عودة مريم الآمنة">Mariam's Safe Return</h3>
+                    <p data-en="9-year-old Mariam was separated from her mother in a crowded shopping mall in Giza. Her mother uploaded photos immediately to Returno. Within 6 hours, our facial recognition system identified Mariam in security footage from a nearby restaurant. Mall security was alerted, and Mariam was safely returned to her mother the same day. The quick response time was crucial in ensuring Mariam's safety." data-ar="انفصلت مريم البالغة من العمر 9 سنوات عن والدتها في مركز تسوق مزدحم في الجيزة. قامت والدتها بتحميل الصور فوراً على ريترنو. في غضون 6 ساعات، حدد نظام التعرف على الوجوه لدينا مريم في لقطات الأمن من مطعم قريب. تم تنبيه أمن المركز، وأعيدت مريم بأمان إلى والدتها في نفس اليوم.">9-year-old Mariam was separated from her mother in a crowded shopping mall in Giza. Her mother uploaded photos immediately to Returno. Within 6 hours, our facial recognition identified Mariam in security footage from a nearby restaurant.</p>
+                    <span class="duration" data-en="Found in 6 hours" data-ar="تم العثور عليها في 6 ساعات">Found in 6 hours</span>
+                </div>
+
+                <div class="story-card">
+                    <h3 data-en="Youssef's Recovery" data-ar="تعافي يوسف">Youssef's Recovery</h3>
+                    <p data-en="15-year-old Youssef went missing after a family dispute. His parents were worried but filed a report with Returno, including recent photos and voice messages. After 10 days, a youth center worker recognized him from our database and contacted authorities. Youssef was provided counseling and safely reunited with his family. This case emphasized the importance of our platform in helping teenagers in difficult situations." data-ar="اختفى يوسف البالغ من العمر 15 عاماً بعد نزاع عائلي. كان والداه قلقين لكنهما قدما بلاغاً لريترنو، بما في ذلك صور حديثة ورسائل صوتية. بعد 10 أيام، تعرف عليه أحد العاملين في مركز الشباب من قاعدة البيانات لدينا واتصل بالسلطات. تم تقديم المشورة ليوسف ولم شمله بأمان مع عائلته.">15-year-old Youssef went missing after a family dispute. His parents filed a report with Returno, including photos and voice messages. After 10 days, a youth center worker recognized him from our database. Youssef was provided counseling and safely reunited with his family.</p>
+                    <span class="duration" data-en="Found in 10 days" data-ar="تم العثور عليه في 10 أيام">Found in 10 days</span>
+                </div>
+
+                <div class="story-card">
+                    <h3 data-en="Nour's Miracle" data-ar="معجزة نور">Nour's Miracle</h3>
+                    <p data-en="4-year-old Nour disappeared from a park in Aswan. The family was distraught and immediately used Returno to report her missing. Our AI system continuously scanned uploaded images from the public. After 8 days, a tourist uploaded a photo to social media that our system flagged. Nour was found safe with a family who had mistakenly thought she was abandoned. This case showed how our AI can monitor various sources to find missing children." data-ar="اختفت نور البالغة من العمر 4 سنوات من حديقة في أسوان. كانت الأسرة منزعجة واستخدمت ريترنو على الفور للإبلاغ عن فقدانها. قام نظام الذكاء الاصطناعي لدينا بمسح الصور المحملة من الجمهور بشكل مستمر. بعد 8 أيام، قام سائح بتحميل صورة على وسائل التواصل الاجتماعي تم الإشارة إليها من قبل نظامنا. تم العثور على نور بأمان مع عائلة كانت تعتقد خطأً أنها مهجورة.">4-year-old Nour disappeared from a park in Aswan. The family immediately used Returno to report her missing. After 8 days, a tourist uploaded a photo to social media that our system flagged. Nour was found safe with a family who had mistakenly thought she was abandoned.</p>
+                    <span class="duration" data-en="Found in 8 days" data-ar="تم العثور عليها في 8 أيام">Found in 8 days</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Page -->
+    <div id="contact" class="page">
+        <div class="container">
+            <h1 class="section-title" data-en="Contact Us" data-ar="اتصل بنا">Contact Us</h1>
+            
+            <div class="contact-grid">
+                <div class="contact-card">
+                    <h3 data-en="Emergency Hotline" data-ar="خط الطوارئ">Emergency Hotline</h3>
+                    <p>+20 123 456 7890</p>
+                    <p data-en="Available 24/7" data-ar="متاح على مدار الساعة">Available 24/7</p>
+                </div>
+
+                <div class="contact-card">
+                    <h3 data-en="Email Support" data-ar="الدعم عبر البريد الإلكتروني">Email Support</h3>
+                    <p>support@returno.com</p>
+                    <p>help@returno.com</p>
+                </div>
+
+                <div class="contact-card">
+                    <h3 data-en="Social Media" data-ar="وسائل التواصل الاجتماعي">Social Media</h3>
+                    <div class="social-links">
+                        <a href="#">Facebook</a>
+                        <a href="#">Twitter</a>
+                        <a href="#">Instagram</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-container">
+                <h2 data-en="Send Us a Message" data-ar="أرسل لنا رسالة">Send Us a Message</h2>
+                <form>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label data-en="Your Name" data-ar="اسمك">Your Name</label>
+                            <input type="text" required>
+                        </div>
+                        <div class="form-group">
+                            <label data-en="Your Email" data-ar="بريدك الإلكتروني">Your Email</label>
+                            <input type="email" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label data-en="Subject" data-ar="الموضوع">Subject</label>
+                        <input type="text" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-en="Message" data-ar="الرسالة">Message</label>
+                        <textarea required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn" data-en="Send Message" data-ar="إرسال الرسالة">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p data-en="&copy; 2024 Returno. Bringing Hope, Reuniting Families." data-ar="&copy; 2024 ريترنو. نعيد الأمل، نجمع العائلات.">&copy; 2024 Returno. Bringing Hope, Reuniting Families.</p>
+        <p data-en="Powered by Advanced AI Technology" data-ar="مدعوم بتقنية الذكاء الاصطناعي المتقدمة">Powered by Advanced AI Technology</p>
+    </footer>
+
+    <!-- Chatbot -->
+    <button class="chatbot-toggle" onclick="toggleChatbot()">💬</button>
+    <div class="chatbot-window" id="chatbot">
+        <div class="chatbot-header" data-en="Returno Support - We're here to help" data-ar="دعم ريترنو - نحن هنا للمساعدة">Returno Support - We're here to help</div>
+        <div class="chatbot-messages">
+            <div class="chat-message" data-en="Hello! I'm here to help you. I can assist with:
+• Guiding you through report submission
+• Answering questions about our services
+• Helping you search for missing persons
+• Providing emotional support
+
+How can I help you today?" data-ar="مرحباً! أنا هنا لمساعدتك. يمكنني المساعدة في:
+• إرشادك خلال تقديم البلاغ
+• الإجابة على أسئلة حول خدماتنا
+• مساعدتك في البحث عن المفقودين
+• تقديم الدعم العاطفي
+
+كيف يمكنني مساعدتك اليوم؟">Hello! I'm here to help you. I can assist with:
+• Guiding you through report submission
+• Answering questions about our services
+• Helping you search for missing persons
+• Providing emotional support
+
+How can I help you today?</div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" placeholder="Type your message...">
+            <button data-en="Send" data-ar="إرسال">Send</button>
+        </div>
+    </div>
+
+    <script>
+        // Language Toggle
+        let currentLang = 'en';
+        
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'ar' : 'en';
+            const elements = document.querySelectorAll('[data-en][data-ar]');
+            
+            elements.forEach(el => {
+                el.textContent = el.getAttribute('data-' + currentLang);
+            });
+
+            // Toggle RTL
+            document.body.classList.toggle('rtl', currentLang === 'ar');
+            document.documentElement.setAttribute('lang', currentLang);
+            document.documentElement.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
+
+            // Update language toggle button
+            const langBtn = document.querySelector('.lang-toggle');
+            langBtn.textContent = currentLang === 'en' ? 'العربية' : 'English';
+        }
+
+        // Page Navigation
+        function showPage(pageId) {
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        // Chatbot Toggle
+        function toggleChatbot() {
+            const chatbot = document.getElementById('chatbot');
+            chatbot.classList.toggle('active');
+        }
+
+        // File Upload Display
+        document.querySelectorAll('input[type="file"]').forEach(input => {
+            input.addEventListener('change', function() {
+                const fileCount = this.files.length;
+                if (fileCount > 0) {
+                    alert(`${fileCount} file(s) selected`);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
