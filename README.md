@@ -5,7 +5,6 @@ pip install flask flask-cors opencv-python tensorflow numpy pillow
 ```
 
 2. Create folder structure:
-```
    returno-project/
    ├── app.py
    ├── saved_model.h5  (your model)
