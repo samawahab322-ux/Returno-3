@@ -1,38 +1,23 @@
-####################imports####################
 import cv2
 import numpy as np
-import tensorflow as tf
 from flask import Flask, render_template, Response, request, jsonify
 from flask_cors import CORS
-import base64
-import io
-from PIL import Image
-import json
 import os
-from datetime import datetime
+import base64
+from PIL import Image
 from flask_sqlalchemy import SQLAlchemy
-####################imports####################
+from datetime import datetime
+from skimage.metrics import structural_similarity as ssim
+import io
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for frontend communication
+CORS(app)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db = SQLAlchemy(app)
 
-# Model and configurations
-model = tf.keras.models.load_model(
-    'saved_model.h5',
-    custom_objects=None,
-    compile=True,
-    options=None
-)
+DATASET_DIR = 'dataset' 
 
-class_list = ['Alfred Enoch', 'Harry Potter', 'Hermione', 'Menna', 'Ron Weasley', 'Sama']
-text_color = (206, 235, 135)
-font = cv2.FONT_HERSHEY_SIMPLEX
-fontScale = 1
-thickness = 3
-
-# Database Models
 class Report(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     guardian_id = db.Column(db.Integer, db.ForeignKey('guardian.id'), nullable=False)
@@ -60,35 +45,40 @@ class MissingPerson(db.Model):
     predicted_identity = db.Column(db.String(100))
     confidence = db.Column(db.Float)
 
-def preprocess_image(image):
-    """Preprocess image for model prediction"""
-    image_resized = cv2.resize(image, (224, 224))
-    img_array = tf.expand_dims(image_resized, 0)
-    return img_array
+def preprocess_image(img_cv):
+    gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
+    gray = cv2.resize(gray, (200, 200))
+    return gray
 
-def predict_face(image):
-    """Make prediction on face image"""
-    img_array = preprocess_image(image)
-    predict = model.predict(img_array)
-    predict_index = np.argmax(predict[0], axis=0)
-    confidence = float(predict[0][predict_index])
-    predicted_class = class_list[predict_index]
-    return predicted_class, confidence
+def compare_with_dataset(img_cv):
+    input_img = preprocess_image(img_cv)
+    best_match = None
+    highest_score = 0
+
+    for filename in os.listdir(DATASET_DIR):
+        if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
+            path = os.path.join(DATASET_DIR, filename)
+            dataset_img = cv2.imread(path)
+            dataset_img = preprocess_image(dataset_img)
+            
+            score = ssim(input_img, dataset_img)
+            if score > highest_score:
+                highest_score = score
+                best_match = filename
+
+    return best_match, highest_score
 
 @app.route('/')
 def index():
-    """Serve the main page"""
     return render_template('index.html')
 
 @app.route('/dashboard')
 def dashboard():
-    """Serve the dashboard page"""
     reports = Report.query.all()
     return render_template('dashboard.html', reports=reports)
 
 @app.route('/api/report_missing', methods=['POST'])
 def report_missing():
-    """Handle missing person report submission"""
     try:
         data = request.json
         
@@ -100,7 +90,7 @@ def report_missing():
             relationship=data.get('relationship')
         )
         db.session.add(guardian)
-        db.session.commit()
+        db.session.commit() 
 
         missing_person = MissingPerson(
             name=data.get('missing_name'),
@@ -109,7 +99,9 @@ def report_missing():
             last_seen_location=data.get('last_seen_location'),
             description=data.get('description')
         )
-        
+        db.session.add(missing_person)
+        db.session.commit() 
+
         photos = data.get('photos', [])
         predicted_identity = None
         confidence = 0.0
@@ -120,12 +112,16 @@ def report_missing():
             img = Image.open(io.BytesIO(img_data))
             img_cv = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
             
-            predicted_identity, confidence = predict_face(img_cv)
+            upload_dir = 'uploads/reports'
+            os.makedirs(upload_dir, exist_ok=True)
+            image_filename = f"{missing_person.id}.jpg"
+            image_path = os.path.join(upload_dir, image_filename)
+            cv2.imwrite(image_path, img_cv)
+
+            predicted_identity, confidence = compare_with_dataset(img_cv)
             missing_person.predicted_identity = predicted_identity
             missing_person.confidence = confidence
-        
-        db.session.add(missing_person)
-        db.session.commit()
+            db.session.commit()
 
         report = Report(
             guardian_id=guardian.id,
@@ -143,27 +139,23 @@ def report_missing():
         
     except Exception as e:
         db.session.rollback()
-        return jsonify({
-            'success': False,
-            'message': str(e)
-        }), 500
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 @app.route('/api/search_by_photo', methods=['POST'])
 def search_by_photo():
-    """Search database by uploaded photo"""
     try:
         data = request.json
         photo_base64 = data.get('photo')
-        
         img_data = base64.b64decode(photo_base64.split(',')[1])
         img = Image.open(io.BytesIO(img_data))
         img_cv = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
-        
-        predicted_class, confidence = predict_face(img_cv)
-        
+
+        match_filename, score = compare_with_dataset(img_cv)
         matches = []
-        if confidence > 0.7:
-            persons = MissingPerson.query.filter_by(predicted_identity=predicted_class).all()
+
+        if score > 0.7:
+            person_name = os.path.splitext(match_filename)[0]
+            persons = MissingPerson.query.filter(MissingPerson.name.ilike(f"%{person_name}%")).all()
             for person in persons:
                 report = Report.query.filter_by(missing_person_id=person.id).first()
                 if report:
@@ -178,73 +170,22 @@ def search_by_photo():
                             'name': report.guardian.name,
                             'phone': report.guardian.phone
                         },
-                        'confidence': person.confidence,
-                        'predicted_identity': person.predicted_identity
+                        'predicted_identity': person.predicted_identity,
+                        'confidence': person.confidence
                     })
-        
+
         return jsonify({
             'success': True,
-            'predicted_identity': predicted_class,
-            'confidence': confidence,
+            'predicted_identity': match_filename,
+            'confidence': score,
             'matches': matches
         })
-        
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'message': str(e)
-        }), 500
 
-@app.route('/api/live_recognition')
-def live_recognition():
-    """Stream live face recognition"""
-    def generate_frames():
-        cap = cv2.VideoCapture(0)
-        
-        if not cap.isOpened():
-            yield b'--frame\r\nContent-Type: text/plain\r\n\r\nCamera not available\r\n'
-            return
-        
-        while True:
-            ret, frame = cap.read()
-            if not ret:
-                break
-            
-            frame = cv2.flip(frame, 1)
-            
-            # Make prediction
-            predicted_class, confidence = predict_face(frame)
-            
-            # Draw text on frame
-            text = f"Detected: {predicted_class} ({confidence:.2%})"
-            cv2.putText(
-                frame,
-                text,
-                (50, 50),
-                font,
-                fontScale,
-                text_color,
-                thickness,
-                cv2.LINE_AA
-            )
-            
-            # Encode frame
-            ret, buffer = cv2.imencode('.jpg', frame)
-            frame_bytes = buffer.tobytes()
-            
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-        
-        cap.release()
-    
-    return Response(
-        generate_frames(),
-        mimetype='multipart/x-mixed-replace; boundary=frame'
-    )
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 @app.route('/api/get_missing_reports', methods=['GET'])
 def get_missing_reports():
-    """Get all missing person reports"""
     reports = Report.query.all()
     results = []
     for report in reports:
@@ -266,7 +207,6 @@ def get_missing_reports():
 
 @app.route('/api/search_by_name', methods=['GET'])
 def search_by_name():
-    """Search missing persons by name"""
     name_query = request.args.get('name', '').lower()
     persons = MissingPerson.query.filter(MissingPerson.name.ilike(f'%{name_query}%')).all()
     results = []
@@ -275,22 +215,15 @@ def search_by_name():
         if report:
             results.append({
                 'report_id': report.id,
-                'missing_person': {
-                    'name': person.name,
-                    'age': person.age,
-                },
-                'guardian': {
-                    'name': report.guardian.name
-                }
+                'missing_person': {'name': person.name, 'age': person.age},
+                'guardian': {'name': report.guardian.name}
             })
     return jsonify({'success': True, 'results': results})
+
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    # Create uploads directory if it doesn't exist
-    os.makedirs('uploads', exist_ok=True)
-    
-    print("Starting Returno Face Recognition Server...")
-    print("Server running on http://localhost:5000")
+    os.makedirs('uploads/reports', exist_ok=True)
+    os.makedirs(DATASET_DIR, exist_ok=True)
     app.run(debug=True, host='0.0.0.0', port=5000)
