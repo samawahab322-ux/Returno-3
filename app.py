@@ -74,8 +74,28 @@ def index():
 
 @app.route('/dashboard')
 def dashboard():
-    reports = Report.query.all()
-    return render_template('dashboard.html', reports=reports)
+    reports_from_db = Report.query.all()
+    reports_for_template = []
+    for report in reports_from_db:
+        reports_for_template.append({
+            'id': report.id,
+            'status': report.status.title(),
+            'timestamp': report.timestamp.strftime('%Y-%m-%d %H:%M'),
+            'guardian': {
+                'name': report.guardian.name,
+                'phone': report.guardian.phone,
+                'email': 'Not Available', 
+                'address': 'Not Available' 
+            },
+            'missing_person': {
+                'name': report.missing_person.name,
+                'age': report.missing_person.age,
+                'last_seen_location': report.missing_person.last_seen_location,
+                'description': report.missing_person.description,
+                'last_seen_time': 'Not Available' 
+            }
+        })
+    return render_template('dashboard.html', reports=reports_for_template)
 
 @app.route('/api/report_missing', methods=['POST'])
 def report_missing():
@@ -186,24 +206,57 @@ def search_by_photo():
 
 @app.route('/api/get_missing_reports', methods=['GET'])
 def get_missing_reports():
-    reports = Report.query.all()
-    results = []
-    for report in reports:
-        results.append({
-            'id': report.id,
-            'status': report.status,
-            'timestamp': report.timestamp,
-            'guardian': {
-                'name': report.guardian.name,
-                'phone': report.guardian.phone
-            },
-            'missing_person': {
-                'name': report.missing_person.name,
-                'age': report.missing_person.age,
-                'last_seen_location': report.missing_person.last_seen_location
-            }
-        })
-    return jsonify({'success': True, 'reports': results})
+    try:
+        query = Report.query.join(MissingPerson)
+
+        # Filter by Case ID
+        case_id = request.args.get('case_id')
+        if case_id:
+            query = query.filter(Report.id == case_id)
+
+        # Filter by Age Range
+        min_age = request.args.get('min_age')
+        max_age = request.args.get('max_age')
+        if min_age and max_age:
+            query = query.filter(MissingPerson.age.between(min_age, max_age))
+        elif min_age:
+            query = query.filter(MissingPerson.age >= min_age)
+        elif max_age:
+            query = query.filter(MissingPerson.age <= max_age)
+            
+        # Filter by Location
+        location = request.args.get('location')
+        if location:
+            query = query.filter(MissingPerson.last_seen_location.ilike(f"%{location}%"))
+
+        # Filter by Date Range
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+        if start_date and end_date:
+            start_date_obj = datetime.strptime(start_date, '%Y-%m-%d')
+            end_date_obj = datetime.strptime(end_date, '%Y-%m-%d')
+            query = query.filter(Report.timestamp.between(start_date_obj, end_date_obj))
+
+        reports = query.all()
+        results = []
+        for report in reports:
+            results.append({
+                'id': report.id,
+                'status': report.status,
+                'timestamp': report.timestamp.strftime('%Y-%m-%d %H:%M'),
+                'guardian': {
+                    'name': report.guardian.name,
+                    'phone': report.guardian.phone
+                },
+                'missing_person': {
+                    'name': report.missing_person.name,
+                    'age': report.missing_person.age,
+                    'last_seen_location': report.missing_person.last_seen_location
+                }
+            })
+        return jsonify({'success': True, 'reports': results})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 @app.route('/api/search_by_name', methods=['GET'])
 def search_by_name():

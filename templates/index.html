@@ -586,32 +586,36 @@
             left: 30px;
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5rem;
-            }
+        .search-results {
+            margin-top: 3rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
 
-            .nav-links {
-                flex-direction: column;
-                gap: 1rem;
-            }
+        .result-card {
+            background: var(--lighter-purple);
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.1);
+        }
 
-            .form-container {
-                padding: 1.5rem;
-            }
+        .result-card h4 {
+            color: var(--dark-purple);
+            margin-bottom: 0.5rem;
+        }
 
-            .chatbot-window {
-                width: 90%;
-                right: 5%;
-            }
+        .result-card p {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
         }
     </style>
 </head>
 <body>
     <!-- Language Toggle -->
     <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>
-
+    
     <!-- Navigation -->
     <nav>
         <div class="nav-container">
@@ -626,7 +630,7 @@
             </ul>
         </div>
     </nav>
-
+    
     <!-- Home Page -->
     <div id="home" class="page active">
         <!-- Hero Section -->
@@ -638,7 +642,7 @@
                 <button class="btn btn-secondary" onclick="showPage('search')" data-en="Search Now" data-ar="ابحث الآن">Search Now</button>
             </div>
         </section>
-
+        
         <!-- About Section -->
         <section class="about-section">
             <div class="about-content">
@@ -646,7 +650,7 @@
                 <p data-en="Returno is a revolutionary platform dedicated to reuniting missing persons with their families. We leverage cutting-edge artificial intelligence to analyze facial features and voice patterns, creating a comprehensive database that helps identify and locate missing individuals. Our mission is to bring hope to families and ensure no one stays lost forever." data-ar="ريترنو هي منصة ثورية مكرسة لإعادة الأشخاص المفقودين إلى عائلاتهم. نحن نستخدم الذكاء الاصطناعي المتطور لتحليل ملامح الوجه وأنماط الصوت، مما يخلق قاعدة بيانات شاملة تساعد في تحديد موقع المفقودين. مهمتنا هي إعادة الأمل للعائلات والتأكد من عدم بقاء أي شخص مفقوداً إلى الأبد.">Returno is a revolutionary platform dedicated to reuniting missing persons with their families. We leverage cutting-edge artificial intelligence to analyze facial features and voice patterns, creating a comprehensive database that helps identify and locate missing individuals. Our mission is to bring hope to families and ensure no one stays lost forever.</p>
             </div>
         </section>
-
+        
         <!-- Success Stories Preview -->
         <section class="stories-section">
             <h2 class="section-title" data-en="Recent Success Stories" data-ar="قصص نجاح حديثة">Recent Success Stories</h2>
@@ -669,7 +673,7 @@
             </div>
         </section>
     </div>
-
+    
     <!-- Report Page -->
     <div id="report" class="page">
         <div class="container">
@@ -710,7 +714,7 @@
                             </div>
                         </div>
                     </div>
-
+                    
                     <!-- Missing Person Information -->
                     <div class="form-section">
                         <h3 data-en="Missing Person Information" data-ar="معلومات الشخص المفقود">Missing Person Information</h3>
@@ -737,7 +741,7 @@
                             <textarea id="description" required placeholder="Height, weight, hair color, eye color, distinctive features, clothing last seen wearing..."></textarea>
                         </div>
                     </div>
-
+                    
                     <!-- Photo Upload -->
                     <div class="form-section">
                         <h3 data-en="Upload Photos" data-ar="تحميل الصور">Upload Photos</h3>
@@ -746,7 +750,7 @@
                             <input type="file" id="photos" multiple accept="image/*">
                         </div>
                     </div>
-
+                    
                     <!-- Audio Upload -->
                     <div class="form-section">
                         <h3 data-en="Upload Audio Samples" data-ar="تحميل عينات صوتية">Upload Audio Samples</h3>
@@ -755,29 +759,49 @@
                             <input type="file" id="audio" multiple accept="audio/*">
                         </div>
                     </div>
-
+                    
                     <button type="submit" class="submit-btn" data-en="Submit Report" data-ar="إرسال البلاغ">Submit Report</button>
                 </form>
             </div>
         </div>
     </div>
-
+    
     <!-- Search Page -->
     <div id="search" class="page">
         <div class="container">
             <h1 class="section-title" data-en="Search for Missing Persons" data-ar="البحث عن الأشخاص المفقودين">Search for Missing Persons</h1>
             <div class="search-container">
                 <div class="search-box">
-                    <input type="text" class="search-input" placeholder="Search by name, case number, or description...">
+                    <input type="text" id="search-input" class="search-input" placeholder="Search by name, case number, or description...">
+                    <div id="filter-container" class="form-grid" style="margin-top: 1.5rem;">
+                        <div class="form-group">
+                            <label for="min-age">Min Age</label>
+                            <input type="number" id="min-age" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="max-age">Max Age</label>
+                            <input type="number" id="max-age" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="start-date">Start Date</label>
+                            <input type="date" id="start-date" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="end-date">End Date</label>
+                            <input type="date" id="end-date" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="location">Location</label>
+                            <input type="text" id="location" class="form-control" placeholder="City or area">
+                        </div>
+                    </div>
                     <div class="search-filters">
-                        <button class="filter-btn" data-en="Search by Name" data-ar="البحث بالاسم">Search by Name</button>
-                        <button class="filter-btn" data-en="Search by Case Number" data-ar="البحث برقم الحالة">Search by Case Number</button>
-                        <button class="filter-btn" data-en="Filter by Age" data-ar="التصفية حسب العمر">Filter by Age</button>
-                        <button class="filter-btn" data-en="Filter by Date" data-ar="التصفية حسب التاريخ">Filter by Date</button>
-                        <button class="filter-btn" data-en="Filter by Location" data-ar="التصفية حسب الموقع">Filter by Location</button>
+                        <button id="search-by-name-btn" class="filter-btn" data-en="Search by Name" data-ar="البحث بالاسم">Search by Name</button>
+                        <button id="search-by-case-id-btn" class="filter-btn" data-en="Search by Case ID" data-ar="البحث برقم الحالة">Search by Case ID</button>
+                        <button id="apply-filters-btn" class="filter-btn" data-en="Apply Filters" data-ar="تطبيق الفلاتر">Apply Filters</button>
                     </div>
                 </div>
-
+                
                 <!-- Upload Search Options -->
                 <div class="form-section">
                     <h3 data-en="Search by Photo" data-ar="البحث بالصورة">Search by Photo</h3>
@@ -786,7 +810,7 @@
                         <input type="file" id="search-photo" accept="image/*">
                     </div>
                 </div>
-
+                
                 <div class="form-section">
                     <h3 data-en="Search by Voice" data-ar="البحث بالصوت">Search by Voice</h3>
                     <div class="file-upload" onclick="document.getElementById('search-audio').click()">
@@ -794,12 +818,14 @@
                         <input type="file" id="search-audio" accept="audio/*">
                     </div>
                 </div>
-
+                
                 <button class="submit-btn" data-en="Search Database" data-ar="البحث في قاعدة البيانات">Search Database</button>
             </div>
+            
+            <div id="search-results" class="search-results"></div>
         </div>
     </div>
-
+    
     <!-- Prevention Page -->
     <div id="prevention" class="page">
         <div class="container">
@@ -815,7 +841,7 @@
                         <li data-en="Practice 'what if' scenarios regularly" data-ar="مارس سيناريوهات 'ماذا لو' بانتظام">Practice 'what if' scenarios regularly</li>
                     </ul>
                 </div>
-
+                
                 <div class="prevention-card">
                     <h3 data-en="Supervision and Monitoring" data-ar="الإشراف والمراقبة">Supervision and Monitoring</h3>
                     <ul>
@@ -825,7 +851,7 @@
                         <li data-en="Know your child's friends and their parents" data-ar="تعرف على أصدقاء طفلك وأولياء أمورهم">Know your child's friends and their parents</li>
                     </ul>
                 </div>
-
+                
                 <div class="prevention-card">
                     <h3 data-en="Documentation" data-ar="التوثيق">Documentation</h3>
                     <ul>
@@ -835,7 +861,7 @@
                         <li data-en="Keep copies of important documents safe" data-ar="احتفظ بنسخ من المستندات المهمة في مكان آمن">Keep copies of important documents safe</li>
                     </ul>
                 </div>
-
+                
                 <div class="prevention-card">
                     <h3 data-en="Public Places Safety" data-ar="السلامة في الأماكن العامة">Public Places Safety</h3>
                     <ul>
@@ -845,7 +871,7 @@
                         <li data-en="Teach children to look for police or security if lost" data-ar="علّم الأطفال البحث عن الشرطة أو الأمن إذا ضاعوا">Teach children to look for police or security if lost</li>
                     </ul>
                 </div>
-
+                
                 <div class="prevention-card">
                     <h3 data-en="Online Safety" data-ar="السلامة على الإنترنت">Online Safety</h3>
                     <ul>
@@ -855,7 +881,7 @@
                         <li data-en="Set parental controls on devices" data-ar="قم بتعيين ضوابط الرقابة الأبوية على الأجهزة">Set parental controls on devices</li>
                     </ul>
                 </div>
-
+                
                 <div class="prevention-card">
                     <h3 data-en="Build Trust" data-ar="بناء الثقة">Build Trust</h3>
                     <ul>
@@ -868,7 +894,7 @@
             </div>
         </div>
     </div>
-
+    
     <!-- Success Stories Page -->
     <div id="stories" class="page">
         <div class="container">
@@ -880,31 +906,31 @@
                     <p data-en="7-year-old Ahmed was separated from his family during a busy market visit in Cairo. His parents immediately filed a report on Returno, uploading recent photos. Three days later, our AI system matched Ahmed's face with footage from a bus station camera 200km away. Local authorities were notified, and Ahmed was safely returned to his overjoyed family. The voice verification feature confirmed his identity within minutes." data-ar="انفصل أحمد البالغ من العمر 7 سنوات عن عائلته أثناء زيارة سوق مزدحم في القاهرة. قدم والداه بلاغاً فوراً على ريترنو، وقاموا بتحميل صور حديثة. بعد ثلاثة أيام، طابق نظام الذكاء الاصطناعي لدينا وجه أحمد مع لقطات من كاميرا محطة حافلات على بعد 200 كيلومتر. تم إخطار السلطات المحلية، وأعيد أحمد بأمان إلى عائلته المبتهجة. أكدت ميزة التحقق من الصوت هويته في غضون دقائق.">7-year-old Ahmed was separated from his family during a busy market visit in Cairo. His parents immediately filed a report on Returno, uploading recent photos. Three days later, our AI system matched Ahmed's face with footage from a bus station camera 200km away. Local authorities were notified, and Ahmed was safely returned to his overjoyed family.</p>
                     <span class="duration" data-en="Found in 3 days" data-ar="تم العثور عليه في 3 أيام">Found in 3 days</span>
                 </div>
-
+                
                 <div class="story-card">
                     <h3 data-en="Fatima's Reunion" data-ar="لم شمل فاطمة">Fatima's Reunion</h3>
                     <p data-en="65-year-old Fatima, who lives with memory challenges, wandered away from her home in Alexandria. Her family was devastated and immediately contacted Returno. After 14 days of searching, a shelter worker uploaded an audio recording to our system. Our voice recognition AI matched it with the audio samples provided by Fatima's daughter. The emotional reunion brought tears of joy to everyone involved. This case highlighted the importance of voice recognition in identifying individuals who may not remember their own names." data-ar="فاطمة البالغة من العمر 65 عاماً، والتي تعاني من تحديات في الذاكرة، ابتعدت عن منزلها في الإسكندرية. كانت عائلتها محطمة واتصلت بريترنو على الفور. بعد 14 يوماً من البحث، قام أحد العاملين في المأوى بتحميل تسجيل صوتي على نظامنا. طابق نظام التعرف على الصوت بالذكاء الاصطناعي مع العينات الصوتية التي قدمتها ابنة فاطمة. أدى لم الشمل العاطفي إلى دموع الفرح لكل المعنيين.">65-year-old Fatima, who lives with memory challenges, wandered away from her home in Alexandria. Her family was devastated and immediately contacted Returno. After 14 days, a shelter worker uploaded an audio recording to our system. Our voice recognition AI matched it with samples provided by Fatima's daughter.</p>
                     <span class="duration" data-en="Found in 14 days" data-ar="تم العثور عليها في 14 يوماً">Found in 14 days</span>
                 </div>
-
+                
                 <div class="story-card">
                     <h3 data-en="Omar's Journey Home" data-ar="رحلة عمر إلى المنزل">Omar's Journey Home</h3>
                     <p data-en="12-year-old Omar got lost while on a school trip in Luxor. His guardian filed a report with multiple photos and his voice from video recordings. Five days later, Omar was spotted by a Good Samaritan who used our mobile app to scan faces in the area. Within two hours of the match, Omar was reunited with his family. This case demonstrated the power of community involvement combined with AI technology." data-ar="ضاع عمر البالغ من العمر 12 عاماً أثناء رحلة مدرسية في الأقصر. قدم وليه بلاغاً مع صور متعددة وصوته من تسجيلات الفيديو. بعد خمسة أيام، رآه شخص طيب استخدم تطبيق الهاتف المحمول الخاص بنا لمسح الوجوه في المنطقة. في غضون ساعتين من المطابقة، تم لم شمل عمر مع عائلته.">12-year-old Omar got lost while on a school trip in Luxor. His guardian filed a report with multiple photos and voice recordings. Five days later, Omar was spotted by a Good Samaritan who used our app to scan faces in the area. Within two hours of the match, Omar was reunited with his family.</p>
                     <span class="duration" data-en="Found in 5 days" data-ar="تم العثور عليه في 5 أيام">Found in 5 days</span>
                 </div>
-
+                
                 <div class="story-card">
                     <h3 data-en="Mariam's Safe Return" data-ar="عودة مريم الآمنة">Mariam's Safe Return</h3>
                     <p data-en="9-year-old Mariam was separated from her mother in a crowded shopping mall in Giza. Her mother uploaded photos immediately to Returno. Within 6 hours, our facial recognition system identified Mariam in security footage from a nearby restaurant. Mall security was alerted, and Mariam was safely returned to her mother the same day. The quick response time was crucial in ensuring Mariam's safety." data-ar="انفصلت مريم البالغة من العمر 9 سنوات عن والدتها في مركز تسوق مزدحم في الجيزة. قامت والدتها بتحميل الصور فوراً على ريترنو. في غضون 6 ساعات، حدد نظام التعرف على الوجوه لدينا مريم في لقطات الأمن من مطعم قريب. تم تنبيه أمن المركز، وأعيدت مريم بأمان إلى والدتها في نفس اليوم.">9-year-old Mariam was separated from her mother in a crowded shopping mall in Giza. Her mother uploaded photos immediately to Returno. Within 6 hours, our facial recognition identified Mariam in security footage from a nearby restaurant.</p>
                     <span class="duration" data-en="Found in 6 hours" data-ar="تم العثور عليها في 6 ساعات">Found in 6 hours</span>
                 </div>
-
+                
                 <div class="story-card">
                     <h3 data-en="Youssef's Recovery" data-ar="تعافي يوسف">Youssef's Recovery</h3>
                     <p data-en="15-year-old Youssef went missing after a family dispute. His parents were worried but filed a report with Returno, including recent photos and voice messages. After 10 days, a youth center worker recognized him from our database and contacted authorities. Youssef was provided counseling and safely reunited with his family. This case emphasized the importance of our platform in helping teenagers in difficult situations." data-ar="اختفى يوسف البالغ من العمر 15 عاماً بعد نزاع عائلي. كان والداه قلقين لكنهما قدما بلاغاً لريترنو، بما في ذلك صور حديثة ورسائل صوتية. بعد 10 أيام، تعرف عليه أحد العاملين في مركز الشباب من قاعدة البيانات لدينا واتصل بالسلطات. تم تقديم المشورة ليوسف ولم شمله بأمان مع عائلته.">15-year-old Youssef went missing after a family dispute. His parents filed a report with Returno, including photos and voice messages. After 10 days, a youth center worker recognized him from our database. Youssef was provided counseling and safely reunited with his family.</p>
                     <span class="duration" data-en="Found in 10 days" data-ar="تم العثور عليه في 10 أيام">Found in 10 days</span>
                 </div>
-
+                
                 <div class="story-card">
                     <h3 data-en="Nour's Miracle" data-ar="معجزة نور">Nour's Miracle</h3>
                     <p data-en="4-year-old Nour disappeared from a park in Aswan. The family was distraught and immediately used Returno to report her missing. Our AI system continuously scanned uploaded images from the public. After 8 days, a tourist uploaded a photo to social media that our system flagged. Nour was found safe with a family who had mistakenly thought she was abandoned. This case showed how our AI can monitor various sources to find missing children." data-ar="اختفت نور البالغة من العمر 4 سنوات من حديقة في أسوان. كانت الأسرة منزعجة واستخدمت ريترنو على الفور للإبلاغ عن فقدانها. قام نظام الذكاء الاصطناعي لدينا بمسح الصور المحملة من الجمهور بشكل مستمر. بعد 8 أيام، قام سائح بتحميل صورة على وسائل التواصل الاجتماعي تم الإشارة إليها من قبل نظامنا. تم العثور على نور بأمان مع عائلة كانت تعتقد خطأً أنها مهجورة.">4-year-old Nour disappeared from a park in Aswan. The family immediately used Returno to report her missing. After 8 days, a tourist uploaded a photo to social media that our system flagged. Nour was found safe with a family who had mistakenly thought she was abandoned.</p>
@@ -913,7 +939,7 @@
             </div>
         </div>
     </div>
-
+    
     <!-- Contact Page -->
     <div id="contact" class="page">
         <div class="container">
@@ -925,13 +951,13 @@
                     <p>+20 123 456 7890</p>
                     <p data-en="Available 24/7" data-ar="متاح على مدار الساعة">Available 24/7</p>
                 </div>
-
+                
                 <div class="contact-card">
                     <h3 data-en="Email Support" data-ar="الدعم عبر البريد الإلكتروني">Email Support</h3>
                     <p>support@returno.com</p>
                     <p>help@returno.com</p>
                 </div>
-
+                
                 <div class="contact-card">
                     <h3 data-en="Social Media" data-ar="وسائل التواصل الاجتماعي">Social Media</h3>
                     <div class="social-links">
@@ -941,7 +967,7 @@
                     </div>
                 </div>
             </div>
-
+            
             <div class="form-container">
                 <h2 data-en="Send Us a Message" data-ar="أرسل لنا رسالة">Send Us a Message</h2>
                 <form>
@@ -968,13 +994,13 @@
             </div>
         </div>
     </div>
-
+    
     <!-- Footer -->
     <footer>
         <p data-en="&copy; 2024 Returno. Bringing Hope, Reuniting Families." data-ar="&copy; 2024 ريترنو. نعيد الأمل، نجمع العائلات.">&copy; 2024 Returno. Bringing Hope, Reuniting Families.</p>
         <p data-en="Powered by Advanced AI Technology" data-ar="مدعوم بتقنية الذكاء الاصطناعي المتقدمة">Powered by Advanced AI Technology</p>
     </footer>
-
+    
     <!-- Chatbot -->
     <button class="chatbot-toggle" onclick="toggleChatbot()">💬</button>
     <div class="chatbot-window" id="chatbot">
@@ -1005,7 +1031,7 @@ How can I help you today?</div>
             <button data-en="Send" data-ar="إرسال">Send</button>
         </div>
     </div>
-
+    
     <script>
         // Language Toggle
         let currentLang = 'en';
@@ -1017,17 +1043,17 @@ How can I help you today?</div>
             elements.forEach(el => {
                 el.textContent = el.getAttribute('data-' + currentLang);
             });
-
+            
             // Toggle RTL
             document.body.classList.toggle('rtl', currentLang === 'ar');
             document.documentElement.setAttribute('lang', currentLang);
             document.documentElement.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
-
+            
             // Update language toggle button
             const langBtn = document.querySelector('.lang-toggle');
             langBtn.textContent = currentLang === 'en' ? 'العربية' : 'English';
         }
-
+        
         // Page Navigation
         function showPage(pageId) {
             const pages = document.querySelectorAll('.page');
@@ -1035,13 +1061,13 @@ How can I help you today?</div>
             document.getElementById(pageId).classList.add('active');
             window.scrollTo(0, 0);
         }
-
+        
         // Chatbot Toggle
         function toggleChatbot() {
             const chatbot = document.getElementById('chatbot');
             chatbot.classList.toggle('active');
         }
-
+        
         // File Upload Display
         document.querySelectorAll('input[type="file"]').forEach(input => {
             input.addEventListener('change', function() {
@@ -1051,80 +1077,219 @@ How can I help you today?</div>
                 }
             });
         });
-
-        // Report Form Submission
-        document.getElementById('report-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const guardian_name = document.getElementById('guardian_name').value;
-            const guardian_age = document.getElementById('guardian_age').value;
-            const guardian_national_id = document.getElementById('guardian_national_id').value;
-            const guardian_phone = document.getElementById('guardian_phone').value;
-            const relationship = document.getElementById('relationship').value;
-            const missing_name = document.getElementById('missing_name').value;
-            const missing_age = document.getElementById('missing_age').value;
-            const missing_national_id = document.getElementById('missing_national_id').value;
-            const last_seen_location = document.getElementById('last_seen_location').value;
-            const description = document.getElementById('description').value;
-            const photosInput = document.getElementById('photos');
-
-            const photos = [];
-            const files = photosInput.files;
-            let filesProcessed = 0;
-
-            if (files.length > 0) {
-                Array.from(files).forEach(file => {
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        photos.push(event.target.result);
-                        filesProcessed++;
-                        if (filesProcessed === files.length) {
-                            sendReport();
-                        }
-                    };
-                    reader.readAsDataURL(file);
-                });
-            } else {
-                sendReport();
-            }
-
-            function sendReport() {
-                const data = {
-                    guardian_name,
-                    guardian_age,
-                    guardian_national_id,
-                    guardian_phone,
-                    relationship,
-                    missing_name,
-                    missing_age,
-                    missing_national_id,
-                    last_seen_location,
-                    description,
-                    photos
-                };
-
-                fetch('/api/report_missing', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                })
-                .then(response => response.json())
-                .then(result => {
-                    if (result.success) {
-                        alert('Report submitted successfully!');
-                        document.getElementById('report-form').reset();
+        
+                // Report Form Submission
+                document.getElementById('report-form').addEventListener('submit', function(e) {
+                    e.preventDefault();
+        
+                    const guardian_name = document.getElementById('guardian_name').value;
+                    const guardian_age = document.getElementById('guardian_age').value;
+                    const guardian_national_id = document.getElementById('guardian_national_id').value;
+                    const guardian_phone = document.getElementById('guardian_phone').value;
+                    const relationship = document.getElementById('relationship').value;
+                    const missing_name = document.getElementById('missing_name').value;
+                    const missing_age = document.getElementById('missing_age').value;
+                    const missing_national_id = document.getElementById('missing_national_id').value;
+                    const last_seen_location = document.getElementById('last_seen_location').value;
+                    const description = document.getElementById('description').value;
+                    const photosInput = document.getElementById('photos');
+        
+                    const photos = [];
+                    const files = photosInput.files;
+                    let filesProcessed = 0;
+        
+                    if (files.length > 0) {
+                        Array.from(files).forEach(file => {
+                            const reader = new FileReader();
+                            reader.onload = function(event) {
+                                photos.push(event.target.result);
+                                filesProcessed++;
+                                if (filesProcessed === files.length) {
+                                    sendReport();
+                                }
+                            };
+                            reader.readAsDataURL(file);
+                        });
                     } else {
-                        alert('Error submitting report: ' + result.message);
+                        sendReport();
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while submitting the report.');
+        
+                    function sendReport() {
+                        const data = {
+                            guardian_name,
+                            guardian_age,
+                            guardian_national_id,
+                            guardian_phone,
+                            relationship,
+                            missing_name,
+                            missing_age,
+                            missing_national_id,
+                            last_seen_location,
+                            description,
+                            photos
+                        };
+        
+                        fetch('/api/report_missing', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        })
+                        .then(response => response.json())
+                        .then(result => {
+                            if (result.success) {
+                                alert('Report submitted successfully!');
+                                document.getElementById('report-form').reset();
+                            } else {
+                                alert('Error submitting report: ' + result.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred while submitting the report.');
+                        });
+                    }
                 });
-            }
-        });
-    </script>
-</body>
-</html>
+        
+                // Search Functionality
+                const searchInput = document.getElementById('search-input');
+                const searchByNameBtn = document.getElementById('search-by-name-btn');
+                const searchPhotoInput = document.getElementById('search-photo');
+                const searchResultsContainer = document.getElementById('search-results');
+        
+                function displayResults(results) {
+                    searchResultsContainer.innerHTML = '';
+                    if (results.length === 0) {
+                        searchResultsContainer.innerHTML = '<p>No results found.</p>';
+                        return;
+                    }
+        
+                    results.forEach(item => {
+                        const resultCard = document.createElement('div');
+                        resultCard.className = 'result-card';
+                        let content = `<h4>${item.missing_person.name}</h4>
+                                       <p>Age: ${item.missing_person.age}</p>
+                                       <p>Guardian: ${item.guardian.name}</p>`;
+                        if(item.missing_person.last_seen_location) {
+                            content += `<p>Last Seen: ${item.missing_person.last_seen_location}</p>`;
+                        }
+                        resultCard.innerHTML = content;
+                        searchResultsContainer.appendChild(resultCard);
+                    });
+                }
+        
+                        searchByNameBtn.addEventListener('click', () => {
+                            const query = searchInput.value;
+                            if (!query) {
+                                alert('Please enter a name to search.');
+                                return;
+                            }
+                
+                            fetch(`/api/search_by_name?name=${encodeURIComponent(query)}`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        displayResults(data.results);
+                                    } else {
+                                        alert('Search failed: ' + data.message);
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                    alert('An error occurred during the search.');
+                                });
+                        });
+                        
+                        const searchByCaseIdBtn = document.getElementById('search-by-case-id-btn');
+                        searchByCaseIdBtn.addEventListener('click', () => {
+                            const caseId = searchInput.value;
+                            if (!caseId) {
+                                alert('Please enter a Case ID to search.');
+                                return;
+                            }
+                            
+                            fetch(`/api/get_missing_reports?case_id=${encodeURIComponent(caseId)}`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        displayResults(data.reports);
+                                    } else {
+                                        alert('Search failed: ' + data.message);
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                    alert('An error occurred during the search.');
+                                });
+                        });
+                
+                        const applyFiltersBtn = document.getElementById('apply-filters-btn');
+                        applyFiltersBtn.addEventListener('click', () => {
+                            const minAge = document.getElementById('min-age').value;
+                            const maxAge = document.getElementById('max-age').value;
+                            const startDate = document.getElementById('start-date').value;
+                            const endDate = document.getElementById('end-date').value;
+                            const location = document.getElementById('location').value;
+                            
+                            const params = new URLSearchParams();
+                            if (minAge) params.append('min_age', minAge);
+                            if (maxAge) params.append('max_age', maxAge);
+                            if (startDate) params.append('start_date', startDate);
+                            if (endDate) params.append('end_date', endDate);
+                            if (location) params.append('location', location);
+                            
+                            fetch(`/api/get_missing_reports?${params.toString()}`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        displayResults(data.reports);
+                                    } else {
+                                        alert('Filter failed: ' + data.message);
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                    alert('An error occurred while applying filters.');
+                                });
+                        });
+                
+                        searchPhotoInput.addEventListener('change', function(e) {
+                            const file = e.target.files[0];
+                            if (!file) return;
+                
+                            const reader = new FileReader();
+                            reader.onload = function(event) {
+                                const photoBase64 = event.target.result;
+                                
+                                fetch('/api/search_by_photo', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ photo: photoBase64 })
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        let resultsHtml = `<h4>Photo Search Results</h4>
+                                                           <p>Identity Match: ${data.predicted_identity || 'None'}</p>
+                                                           <p>Confidence: ${(data.confidence * 100).toFixed(2)}%</p>`;
+                                        if (data.matches && data.matches.length > 0) {
+                                            resultsHtml += '<h5>Possible Matches Found:</h5>';
+                                            searchResultsContainer.innerHTML = resultsHtml;
+                                            displayResults(data.matches);
+                                        } else {
+                                            searchResultsContainer.innerHTML = resultsHtml + '<p>No matching reports found in the database.</p>';
+                                        }
+                                    } else {
+                                        alert('Photo search failed: ' + data.message);
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                    alert('An error occurred during the photo search.');
+                                });
+                            };
+                            reader.readAsDataURL(file);
+                        });            </script>
+        </body>
+        </html>
